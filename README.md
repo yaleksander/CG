@@ -1,2 +1,3 @@
-# CG
-Files for the Computer Graphics course in Three.js
+# Realidade Virtual Aumentada
+Mestrado em Computação Gráfica
+Material original disponível em: https://github.com/rodrigoluis/CG
