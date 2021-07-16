@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>T02E03</title>
+	<link rel="shortcut icon" href="../favicon.ico">
+	<link rel="stylesheet" href="../html/resources/default.css">
+    <script src="../libs/aframe/aframe.min.js"></script>
+    <script src="../libs/aframe/aframe-extras.min.js"></script>
+</head>
+<body>
+	<a-scene>
+		<a-entity camera position="0 25 75" look-controls="pointerLockEnabled: true"></a-entity>
+		<a-sky src="../assets/T2/space.jpg"></a-sky>
+		<a-entity light="type: ambient; color: #ffffff; intensity: 0.8"></a-entity>
+
+		<a-sphere src="../assets/T2/sun.jpg" position="0 0 0" radius="15" animation="property: rotation; to: 0 360 0; dur: 10000; loop: true" light="type: point; color: #ffffff; intensity: 1.0; castShadow:true"></a-sphere>
+
+		<a-entity animation="property: rotation; to: 0 360 0; dur: 12500; loop: true">
+			<a-sphere src="../assets/T2/earth.jpg" position="0 0 25" radius="2" animation="property: rotation; to: 0 360 0; dur: 5000; loop: true"></a-sphere>
+		</a-entity>
+		<a-entity animation="property: rotation; to: 0 360 0; dur: 25000; loop: true">
+			<a-sphere src="../assets/T2/planet.jpg" position="0 0 35" radius="3" animation="property: rotation; to: 0 360 0; dur: 7500; loop: true"></a-sphere>
+		</a-entity>
+		<a-entity animation="property: rotation; to: 0 360 0; dur: 6250; loop: true">
+			<a-sphere src="../assets/T2/planet.png" position="50 0 0" radius="1" animation="property: rotation; to: 0 360 0; dur: 2500; loop: true"></a-sphere>
+		</a-entity>
+
+	</a-scene>
+</body>
+</html>
