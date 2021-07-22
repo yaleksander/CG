@@ -7,6 +7,7 @@ using namespace std;
 int main(int argc, char** argv)
 {
 	string a1 = argv[1];
+/*
 	string a2 = argv[2];
 	string s1 = "<!DOCTYPE html>\n\
 <html>\n\
@@ -24,6 +25,7 @@ int main(int argc, char** argv)
 	</div>\n\
 </body>\n\
 </html>";
+*/
 	int n = atoi(argv[2]);
 	string s, filename;
 	ofstream f;
@@ -32,10 +34,12 @@ int main(int argc, char** argv)
 		s = (i < 9 ? "0" : "") + to_string(i + 1);
 		filename = "t" + a1 + "_ex" + s + ".html";
 		f.open(filename);
+/*
 		f << s1 << s << s2 << s << s3 << endl;
 		f.close();
-		f.open("easyAccess\\" + filename);
-		f << "<meta http-equiv=\"Refresh\" content=\"0; url=\'https://localhost\\_USER_CODE_HERE\\CG-gh-pages\\works\\" + filename + "\'\"/>";
+		f.open(filename);
+*/
+		f << "<meta http-equiv=\"Refresh\" content=\"0; url=\'https://localhost\\_USER_CODE_HERE\\CG-gh-pages\\works\\T" + a1 + "\\" + filename + "\'\"/>";
 		f.close();
 	}
 	return 0;

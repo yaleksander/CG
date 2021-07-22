@@ -29,3 +29,8 @@ Material original disponível em: https://github.com/rodrigoluis/CG
 [Ambiente 03: espaço](https://yaleksander.github.io/CG/works/t2_ex03.html)
 
 [Ambiente 04: (livre) fundo do mar](https://yaleksander.github.io/CG/works/t2_ex04.html)
+
+### T3
+
+[Ambiente 01: objeto carregado externamente](https://yaleksander.github.io/CG/works/t3_ex01.html)
+

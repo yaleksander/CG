@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>T02E02</title>
+	<link rel="shortcut icon" href="../favicon.ico">
+	<link rel="stylesheet" href="../html/resources/default.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="../libs/aframe/aframe.min.js"></script>
+</head>
+<body>
+	<a-scene>
+		<!-- ground & sky ---------->
+		<a-plane rotation="-90 0 0" width="500" height="500" color="#7BC8A4" shadow="receive: true"></a-plane>
+		<a-sky src="assets/space.jpg"></a-sky>
+		<a-entity light="type: point; color: #ffffff; intensity: 1.0; castShadow:true" position="0 2.5 0"></a-entity>
+		<!-- trees -->
+		<script src="t2_ex02.js"></script>
+	</a-scene>
+</body>
+</html>
