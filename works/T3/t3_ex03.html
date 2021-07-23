@@ -1,0 +1,48 @@
+<!-- tutorial disponivel em: https://medium.com/chialab-open-source/ar-js-the-simpliest-way-to-get-cross-browser-ar-on-the-web-8f670dd45462 -->
+<!-- (redirecionado da pagina de documentacao do AR.js) -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>T03E01</title>
+	<link rel="shortcut icon" href="../../favicon.ico">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="../../libs/aframe/aframe.min.js"></script>
+    <script src="../../libs/aframe/aframe-extras.min.js"></script>
+	<script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
+</head>
+<body>
+	<a-scene embedded arjs>
+
+		<a-marker-camera preset="hiro"></a-marker-camera>
+
+		<a-entity light="type: ambient; color: #ffffff; intensity: 0.8"></a-entity>
+
+		<a-sphere src="assets/sun.jpg" position="0 1 0" radius="1.5" light="type: point; color: #ffffff; intensity: 1.0; castShadow:true" animation="property: rotation; to: 0 360 0; dur: 10000; loop: true; easing: linear;"></a-sphere>
+		<a-entity animation="property: rotation; to: 0 360 0; dur: 12500; loop: true; easing: linear;">
+			<a-sphere src="assets/earth.jpg" position="0 1 2.5" radius="0.4" animation="property: rotation; to: 0 360 0; dur: 5000; loop: true; easing: linear;"></a-sphere>
+		</a-entity>
+		<a-entity animation="property: rotation; to: 0 360 0; dur: 25000; loop: true; easing: linear;">
+			<a-sphere src="assets/planet.jpg" position="0 1 3.5" radius="0.6" animation="property: rotation; to: 0 360 0; dur: 7500; loop: true; easing: linear;"></a-sphere>
+		</a-entity>
+		<a-entity animation="property: rotation; to: 0 360 0; dur: 6250; loop: true; easing: linear;">
+			<a-sphere src="assets/planet.png" position="5 1 0" radius="0.2" animation="property: rotation; to: 0 360 0; dur: 2500; loop: true; easing: linear;"></a-sphere>
+		</a-entity>
+
+<!--
+		<a-marker type='barcode' value='7'>
+			<a-box position='0 0.5 0' color="yellow"></a-box>
+		</a-marker>
+
+		<a-marker id="animated-marker" type='barcode' value='6'>
+			<a-entity
+				gltf-model="#animated-asset"
+				scale="2">
+			</a-entity>
+		</a-marker>
+-->
+		<!-- use this <a-entity camera> to support multiple-markers, otherwise use <a-marker-camera> instead of </a-marker> -->
+		<!--<a-entity camera></a-entity>-->
+
+	</a-scene>
+</body>
+</html>
