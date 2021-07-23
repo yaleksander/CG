@@ -34,3 +34,10 @@ Material original disponível em: https://github.com/rodrigoluis/CG
 
 [Ambiente 01: objeto carregado externamente](https://yaleksander.github.io/CG/works/t3_ex01.html)
 
+[Ambiente 02: múltiplos marcadores]
+
+[Ambiente 03: integração com a-frame](https://yaleksander.github.io/CG/works/t3_ex03.html)
+
+[Ambiente 04: múltiplos objetos externos]
+
+[Ambiente 05: interação entre marcadores]
