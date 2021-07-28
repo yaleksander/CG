@@ -1,6 +1,6 @@
-import * as THREE   from '../../build/three.module.js';
-import {ARjs}       from "../../libs/AR/ar.js";
-import {GLTFLoader} from "../../build/jsm/loaders/GLTFLoader.js";
+import * as THREE   from '../build/three.module.js';
+import {ARjs}       from "../libs/AR/ar.js";
+import {GLTFLoader} from "../build/jsm/loaders/GLTFLoader.js";
 
 var scene = new THREE.Scene();
 
@@ -31,7 +31,7 @@ function onResize()
 // -----------------------------------------------------------------------------
 
 var arToolkitContext = new ARjs.Context({
-	cameraParametersUrl: '../../libs/AR/data/camera_para.dat',
+	cameraParametersUrl: '../libs/AR/data/camera_para.dat',
 	detectionMode: 'mono'
 })
 
@@ -62,12 +62,12 @@ scene.add(new THREE.AmbientLight(0x404040));
 
 var hiroMarker  = new ARjs.MarkerControls(arToolkitContext, hiroScene, {
 	type : 'pattern',
-	patternUrl : '../../libs/AR/data/patt.hiro'
+	patternUrl : '../libs/AR/data/patt.hiro'
 });
 
 var kanjiMarker = new ARjs.MarkerControls(arToolkitContext, kanjiScene, {
 	type : 'pattern',
-	patternUrl : '../../libs/AR/data/patt.kanji'
+	patternUrl : '../libs/AR/data/patt.kanji'
 });
 
 // -----------------------------------------------------------------------------
