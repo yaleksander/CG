@@ -68,14 +68,15 @@ cameraHolder.add( controller1 );
 //-------------------------------------------------------------------------------------------------
 
 // VR Camera Rectile
-var ringGeo = new THREE.RingGeometry( .01, .02, 32 );
+var ringGeo = new THREE.RingGeometry( .015, .03, 32 );
 var ringMat = new THREE.MeshBasicMaterial( {
 	color:"rgb(255,255,0)", 
 	opacity: 0.9, 
 	transparent: true } );
 var rectile = new THREE.Mesh( ringGeo, ringMat );
- 	rectile.position.set(0, 0, -0.25);
+ 	rectile.position.set(0, 0, -1);
 controller1.add( rectile );
+cameraHolder.translateZ(0.75);
 
 //-------------------------------------------------------------------------------------------------
 //  Novos valores

@@ -70,7 +70,7 @@ var ringMatNo = new THREE.MeshBasicMaterial({
 // VR Camera Rectile
 var ringGeo = new THREE.RingGeometry( .01, .02, 32 );
 var rectile = new THREE.Mesh( ringGeo, ringMatNo );
-rectile.position.set(0, 0, -0.25);
+rectile.position.set(0, 0, -1);
 controller1.add( rectile );
 
 // Altura da camera

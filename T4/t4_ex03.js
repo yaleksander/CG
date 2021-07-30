@@ -63,14 +63,15 @@ controller1.addEventListener( 'selectend', onSelectEnd );
 cameraHolder.add( controller1 );
 
 // VR Camera Rectile
-var ringGeo = new THREE.RingGeometry( .01, .02, 32 );
+var ringGeo = new THREE.RingGeometry( .015, .03, 32 );
 var ringMat = new THREE.MeshBasicMaterial( {
 	color:"rgb(255,255,0)", 
 	opacity: 0.9, 
 	transparent: true } );
 var rectile = new THREE.Mesh( ringGeo, ringMat );
- 	rectile.position.set(0, 0, -0.25);
+ 	rectile.position.set(0, 0, -1);
 controller1.add( rectile );
+cameraHolder.translateZ(0.75);
 
 // Valores controlados
 var vAxis, hAxis, vSlider, hSlider, turret, pedestal;
@@ -212,10 +213,7 @@ function createScene()
 	turret = new THREE.Group();
 	gltfLoader.load("assets/turret/scene.gltf", function (gltf)
 	{
-		gltf.scene.scale.setScalar(0.0002);
-		mixer = new THREE.AnimationMixer(gltf.scene);
-		var idle = mixer.clipAction(gltf.animations[9])
-		idle.play();
+		gltf.scene.scale.setScalar(0.02);
 		gltf.scene.traverse(function (child)
 		{
 			if (child.isMesh)

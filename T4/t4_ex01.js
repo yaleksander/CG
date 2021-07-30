@@ -50,12 +50,6 @@ scene.add(cameraHolder);
 const loader = new THREE.TextureLoader();
 const gltfLoader = new GLTFLoader();
 
-// Relogio para frames de animacao
-var clock = new THREE.Clock();
-
-// Animacoes
-var mixer;
-
 // Creating Scene and calling the main loop
 createScene();
 animate();
@@ -71,8 +65,6 @@ function animate()
 
 function render()
 {
-	if (mixer)
-		mixer.update(clock.getDelta());
 	renderer.render(scene, camera);
 }
 
@@ -80,20 +72,17 @@ function render()
 function createScene()
 {
 	// Luzes
-	const light = new THREE.DirectionalLight(0xffffff, 1);
-	light.position.set(2, 6, 3);
+	const light = new THREE.PointLight(0xffffff, 1);
+	light.position.set(2, 4, 0);
 	light.castShadow = true;
-	light.shadow.mapSize.set(1024, 1024);
+	light.shadow.mapSize.set(4096, 4096);
 	scene.add(light);
 	scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
+//	scene.add(new THREE.AmbientLight(0x888888));
 
 	// Texturas
 	var floorTex = loader.load("assets/panel.png");
 	var cubeTex  = loader.load("assets/cube.png");
-	var skyTex   = loader.load("assets/metal.png");
-	skyTex.wrapS = THREE.RepeatWrapping;
-	skyTex.wrapT = THREE.RepeatWrapping;
-	skyTex.repeat.set(4, 4);
 
 	// Materiais
 	const floorMat = [
@@ -113,33 +102,30 @@ function createScene()
 		new THREE.MeshStandardMaterial({ map: cubeTex, side: THREE.DoubleSide })
 	];
 	const skyMat = [
-		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
-		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
-		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
-		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
-		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
-		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide })
+		new THREE.MeshBasicMaterial({ map: loader.load("assets/sh_ft.png"), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("assets/sh_bk.png"), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("assets/sh_up.png"), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("assets/sh_dn.png"), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("assets/sh_rt.png"), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("assets/sh_lf.png"), side: THREE.BackSide })
 	];
 
 	// Objetos basicos
-	var floor  = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), floorMat);
-	var cube   = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), cubeMat);
-	var skybox = new THREE.Mesh(new THREE.BoxGeometry(8, 8, 8), skyMat);
+	var floor  = new THREE.Mesh(new THREE.BoxGeometry( 4,  4,  4), floorMat);
+	var cube   = new THREE.Mesh(new THREE.BoxGeometry( 1,  1,  1), cubeMat);
+	var skybox = new THREE.Mesh(new THREE.BoxGeometry(30, 30, 30), skyMat);
 	floor.position.set(0, -2, 0);
 	cube.position.set(1, 0.5, -1);
 	cube.rotation.set(0, 1, 0);
 	group.add(floor);
 	group.add(cube);
-	scene.add(skybox); // skybox adicionada diretamente a cena para nao projetar nem receber sombras
+	scene.add(skybox);
 
 	// Objeto externo
 	var turret = new THREE.Group();
 	gltfLoader.load("assets/turret/scene.gltf", function (gltf)
 	{
-		gltf.scene.scale.setScalar(0.0002);
-		mixer = new THREE.AnimationMixer(gltf.scene);
-		var idle = mixer.clipAction(gltf.animations[9])
-		idle.play();
+		gltf.scene.scale.setScalar(0.02);
 		gltf.scene.traverse(function (child)
 		{
 			if (child.isMesh)
