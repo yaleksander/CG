@@ -64,11 +64,11 @@ controller1.addEventListener( 'selectstart', onSelectStart );
 cameraHolder.add( controller1 );
 
 //-------------------------------------------------------------------------------------------------
-//  Trecho intocado
+//  Trecho modificado
 //-------------------------------------------------------------------------------------------------
 
 // VR Camera Rectile
-var ringGeo = new THREE.RingGeometry( .015, .030, 32 );
+var ringGeo = new THREE.RingGeometry( .01, .02, 32 );
 var ringMat = new THREE.MeshBasicMaterial( {
 	color:"rgb(255,255,0)", 
 	opacity: 0.9, 

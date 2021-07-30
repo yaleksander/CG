@@ -1,27 +1,23 @@
 //=================================================================================================
-//  AMBIENTE 03: DRAGGING
+//  AMBIENTE 02: LABELLING
 //-------------------------------------------------------------------------------------------------
 //  Aleksander Yacovenco
 //  Mestrado em Computação Gráfica UFJF
 //  Realidade Virtual e Aumentada 2021/2
 //  Prof. Rodrigo Luis
 //-------------------------------------------------------------------------------------------------
-//  Este codigo usa o "../src/webxr_VR_Drag.js" como base, exceto a funcao "createScene", que foi
-//  modificada completamente. Quaisquer outras modificacoes sao registradas com comentarios
+//  Este codigo usa o "t4_ex02.js" como base
 //=================================================================================================
 
 //=================================================================================================
 //  DECLARACOES E VALORES GLOBAIS
 //=================================================================================================
 
-//-------------------------------------------------------------------------------------------------
-//  Trecho intocado
-//-------------------------------------------------------------------------------------------------
-
 // Imports
-import * as THREE from '../build/three.module.js';
-import { VRButton } from '../build/jsm/webxr/VRButton.js';
-import {onWindowResize} from "../libs/util/util.js";
+import * as THREE         from '../build/three.module.js';
+import { VRButton }       from '../build/jsm/webxr/VRButton.js';
+import { onWindowResize } from "../libs/util/util.js";
+import { GLTFLoader }     from "../build/jsm/loaders/GLTFLoader.js";
 
 // General globals
 let raycaster = new THREE.Raycaster(); // Raycaster to enable selection and dragging
@@ -39,38 +35,26 @@ let renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.xr.enabled = true;
 
 // Setting scene and camera
-let scene = new THREE.Scene();
+var scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 30 );
 
 // Create VR button and settings
 document.body.appendChild( VRButton.createButton( renderer ) );
 
-// controllers
-let controller1 = renderer.xr.getController( 0 );
-//controller1.addEventListener( 'selectstart', onSelectStart );
-//controller1.addEventListener( 'selectend', onSelectEnd );
-scene.add( controller1 );
+// Objeto na cena para controlar a posicao da camera
+var cameraHolder = new THREE.Object3D();
+cameraHolder.add(camera);
+scene.add(cameraHolder);
 
-// VR Camera Rectile
-var ringGeo = new THREE.RingGeometry( .015, .030, 32 );
-var ringMat = new THREE.MeshBasicMaterial( {
-	color:"rgb(255,255,0)", 
-	opacity: 0.9, 
-	transparent: true } );
-var rectile = new THREE.Mesh( ringGeo, ringMat );
- 	rectile.position.set(0, 0, -1);
-controller1.add( rectile );
+// Loaders
+const loader = new THREE.TextureLoader();
+const gltfLoader = new GLTFLoader();
 
-//-------------------------------------------------------------------------------------------------
-//  Novos valores
-//-------------------------------------------------------------------------------------------------
+// Relogio para frames de animacao
+var clock = new THREE.Clock();
 
-// Cor da luz emitida em [R, G, B] ao passar o cursor pelo objeto
-const hoverEmissive = [0, 1, 1];
-
-//-------------------------------------------------------------------------------------------------
-//  Trecho intocado
-//-------------------------------------------------------------------------------------------------
+// Animacoes
+var mixer;
 
 // Creating Scene and calling the main loop
 createScene();
@@ -80,137 +64,103 @@ animate();
 //  FUNCOES
 //=================================================================================================
 
-//-------------------------------------------------------------------------------------------------
-//  Trecho modificado
-//-------------------------------------------------------------------------------------------------
-
-function onSelectStart( event ) {
-	const controller = event.target;
-	const intersections = getIntersections( controller );
-
-	if ( intersections.length > 0 ) {
-		const intersection = intersections[ 0 ];
-		const object = intersection.object;
-		object.material.emissive.b = 1;
-		controller.attach( object );
-		controller.userData.selected = object;
-	}
+function animate()
+{
+	renderer.setAnimationLoop(render);
 }
 
-function onSelectEnd( event ) {
-	const controller = event.target;
-	if ( controller.userData.selected !== undefined ) {
-		const object = controller.userData.selected;
-		object.material.emissive.b = 0;
-		group.attach( object );
-		controller.userData.selected = undefined;
-	}
+function render()
+{
+	if (mixer)
+		mixer.update(clock.getDelta());
+	renderer.render(scene, camera);
 }
 
-//-------------------------------------------------------------------------------------------------
-//  Trecho intocado
-//-------------------------------------------------------------------------------------------------
-
-function getIntersections( controller ) {
-	const tempMatrix = new THREE.Matrix4();	
-	tempMatrix.identity().extractRotation( controller.matrixWorld );
-	raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
-	raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
-	return raycaster.intersectObjects( group.children );
-}
-
-function intersectObjects( controller ) {
-	// Do not highlight when already selected
-	if ( controller.userData.selected !== undefined ) return;
-
-	const intersections = getIntersections( controller );
-
-	if ( intersections.length > 0 ) {
-		const intersection = intersections[ 0 ];
-		const object = intersection.object;
-		object.material.emissive.r = hoverEmissive[0];
-		object.material.emissive.g = hoverEmissive[1];
-		object.material.emissive.b = hoverEmissive[2];
-		intersected.push( object );
-	} 
-}
-
-function cleanIntersected() {
-	while ( intersected.length ) {
-		const object = intersected.pop();
-		object.material.emissive.r = 0;
-		object.material.emissive.g = 0;
-		object.material.emissive.b = 0;
-	}
-}
-
-function animate() {
-	renderer.setAnimationLoop( render );
-}
-
-function render() {
-	cleanIntersected();
-	intersectObjects( controller1 );
-	renderer.render( scene, camera );
-}
-
-//-------------------------------------------------------------------------------------------------
-//  Nova funcao "createScene"
-//-------------------------------------------------------------------------------------------------
-
-// Funcao auxiliar para inicializar o ambiente virtual
+// Inicializa a cena
 function createScene()
 {
-	const light = new THREE.DirectionalLight( 0xffffff );
-	light.position.set( 0, 6, 0 );
+	// Luzes
+	const light = new THREE.DirectionalLight(0xffffff, 1);
+	light.position.set(2, 6, 3);
 	light.castShadow = true;
-	light.shadow.mapSize.set( 4096, 4096 );
-	scene.add( light );
+	light.shadow.mapSize.set(1024, 1024);
+	scene.add(light);
+	scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
-	scene.add( new THREE.HemisphereLight( 0x808080, 0x606060 ) );
+	// Texturas
+	var floorTex = loader.load("assets/panel.png");
+	var cubeTex  = loader.load("assets/cube.png");
+	var skyTex   = loader.load("assets/metal.png");
+	skyTex.wrapS = THREE.RepeatWrapping;
+	skyTex.wrapT = THREE.RepeatWrapping;
+	skyTex.repeat.set(4, 4);
 
-	const floorGeometry = new THREE.PlaneGeometry( 10, 10 );
-	const floorMaterial = new THREE.MeshStandardMaterial( {
-		color: 0xeeeeee,
-		roughness: 1.0,
-		metalness: 0.0
-	} );
-	const floor = new THREE.Mesh( floorGeometry, floorMaterial );
-	floor.rotation.x = -Math.PI / 2;
-	floor.receiveShadow = true;
-	scene.add( floor );
-
-	const geometries = [
-		new THREE.BoxGeometry( 0.2, 0.2, 0.2 ),
-		new THREE.ConeGeometry( 0.2, 0.2, 64 ),
-		new THREE.CylinderGeometry( 0.2, 0.2, 0.2, 64 ),
-		new THREE.TorusGeometry( 0.2, 0.04, 64, 32 )
+	// Materiais
+	const floorMat = [
+		new THREE.MeshStandardMaterial({ map: floorTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: floorTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: floorTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: floorTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: floorTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: floorTex, side: THREE.DoubleSide })
 	];
-	
-	const range = 8;
-	for ( let i = 0; i < 50; i ++ ) {
-	
-		const geometry = geometries[ Math.floor( Math.random() * geometries.length ) ];
-		const material = new THREE.MeshPhongMaterial( {
-			color: Math.random() * 0xffffff
-		} );
-	
-		const object = new THREE.Mesh( geometry, material );
-	
-		object.position.x = Math.random() * range - range/2;
-		object.position.y = Math.random() * range/4.0;
-		object.position.z = Math.random() * range - range/2;
-	
-		object.rotation.x = Math.random() * 2 * Math.PI;
-		object.rotation.y = Math.random() * 2 * Math.PI;
-		object.rotation.z = Math.random() * 2 * Math.PI;
-	
-		object.scale.setScalar( Math.random() + 0.5 );
-	
-		object.castShadow = true;
-		object.receiveShadow = true;
-	
-		group.add( object );
-	}	
-	scene.add( group );
+	const cubeMat = [
+		new THREE.MeshStandardMaterial({ map: cubeTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: cubeTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: cubeTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: cubeTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: cubeTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: cubeTex, side: THREE.DoubleSide })
+	];
+	const skyMat = [
+		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide }),
+		new THREE.MeshStandardMaterial({ map: skyTex, side: THREE.DoubleSide })
+	];
+
+	// Objetos basicos
+	var floor  = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), floorMat);
+	var cube   = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), cubeMat);
+	var skybox = new THREE.Mesh(new THREE.BoxGeometry(8, 8, 8), skyMat);
+	floor.position.set(0, -2, 0);
+	cube.position.set(1, 0.5, -1);
+	cube.rotation.set(0, 1, 0);
+	group.add(floor);
+	group.add(cube);
+	scene.add(skybox); // skybox adicionada diretamente a cena para nao projetar nem receber sombras
+
+	// Objeto externo
+	var turret = new THREE.Group();
+	gltfLoader.load("assets/turret/scene.gltf", function (gltf)
+	{
+		gltf.scene.scale.setScalar(0.0002);
+		mixer = new THREE.AnimationMixer(gltf.scene);
+		var idle = mixer.clipAction(gltf.animations[9])
+		idle.play();
+		gltf.scene.traverse(function (child)
+		{
+			if (child.isMesh)
+			{
+				child.castShadow = true;
+				child.receiveShadow = true;
+			}
+		});
+		turret.add(gltf.scene);
+	});
+	turret.position.set(-1, 0, -1.3);
+	turret.rotation.set(0, 1, 0);
+	scene.add(turret);
+
+	// Faz com que tudo na cena projete e receba sombras
+	var themKids = group.children;
+	var n = themKids.length;
+	for (var i = 0; i < n; i++)
+	{
+		themKids[i].castShadow = true;
+		themKids[i].receiveShadow = true;
+	}
+	scene.add(group);
 }
