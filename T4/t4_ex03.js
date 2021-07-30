@@ -190,7 +190,7 @@ function createScene()
 {
 	// Luzes
 	const light = new THREE.DirectionalLight(0xffffff, 1);
-	light.position.set(2, 6, 3);
+	light.position.set(2, 8, 3);
 	light.castShadow = true;
 	light.shadow.mapSize.set( 4096, 4096 );
 	scene.add(light);
