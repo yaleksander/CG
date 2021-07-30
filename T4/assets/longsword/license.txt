@@ -1,0 +1,11 @@
+Model Information:
+* title:	Bastard sword
+* source:	https://sketchfab.com/3d-models/bastard-sword-816606ecb4b84974ae8f15907ffb7bed
+* author:	Aren Boada (https://sketchfab.com/aren.boada)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Bastard sword" (https://sketchfab.com/3d-models/bastard-sword-816606ecb4b84974ae8f15907ffb7bed) by Aren Boada (https://sketchfab.com/aren.boada) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

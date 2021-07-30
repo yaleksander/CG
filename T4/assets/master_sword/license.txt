@@ -1,0 +1,11 @@
+Model Information:
+* title:	Master Sword
+* source:	https://sketchfab.com/3d-models/master-sword-6935edcafcf44437aeb3345e96be3b6e
+* author:	GengPls (https://sketchfab.com/GengPls)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Master Sword" (https://sketchfab.com/3d-models/master-sword-6935edcafcf44437aeb3345e96be3b6e) by GengPls (https://sketchfab.com/GengPls) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

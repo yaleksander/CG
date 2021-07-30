@@ -1,19 +1,35 @@
-//-- Imports -------------------------------------------------------------------------------------
+//=================================================================================================
+//  AMBIENTE 03: DRAGGING
+//-------------------------------------------------------------------------------------------------
+//  Aleksander Yacovenco
+//  Mestrado em Computação Gráfica UFJF
+//  Realidade Virtual e Aumentada 2021/2
+//  Prof. Rodrigo Luis
+//-------------------------------------------------------------------------------------------------
+//  Este codigo usa o "../src/webxr_VR_Drag.js" como base, exceto a funcao "createScene", que foi
+//  modificada completamente. Quaisquer outras modificacoes sao registradas com comentarios
+//=================================================================================================
+
+//=================================================================================================
+//  DECLARACOES E VALORES GLOBAIS
+//=================================================================================================
+
+//-------------------------------------------------------------------------------------------------
+//  Trecho intocado
+//-------------------------------------------------------------------------------------------------
+
+// Imports
 import * as THREE from '../build/three.module.js';
 import { VRButton } from '../build/jsm/webxr/VRButton.js';
 import {onWindowResize} from "../libs/util/util.js";
 
-//-----------------------------------------------------------------------------------------------
-//-- MAIN SCRIPT --------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------
-
-//--  General globals ---------------------------------------------------------------------------
-let raycaster = new THREE.Raycaster();	// Raycaster to enable selection and dragging
-let group = new THREE.Group(); 			// Objects of the scene will be added in this group
-const intersected = [];					// will be used to help controlling the intersected objects
+// General globals
+let raycaster = new THREE.Raycaster(); // Raycaster to enable selection and dragging
+let group = new THREE.Group();         // Objects of the scene will be added in this group
+const intersected = [];                // will be used to help controlling the intersected objects
 window.addEventListener( 'resize', onWindowResize );
 
-//-- Renderer and html settings ------------------------------------------------------------------
+// Renderer and html settings
 let renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setClearColor(new THREE.Color("rgb(70, 150, 240)"));
 	renderer.setPixelRatio( window.devicePixelRatio );
@@ -22,11 +38,11 @@ let renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.shadowMap.enabled = true;
 	renderer.xr.enabled = true;
 
-//-- Setting scene and camera --------------------------------------------------------------------
+// Setting scene and camera
 let scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 30 );
 
-//-- Create VR button and settings ---------------------------------------------------------------
+// Create VR button and settings
 document.body.appendChild( VRButton.createButton( renderer ) );
 
 // controllers
@@ -45,14 +61,28 @@ var rectile = new THREE.Mesh( ringGeo, ringMat );
  	rectile.position.set(0, 0, -1);
 controller1.add( rectile );
 
-//-- Creating Scene and calling the main loop ----------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//  Novos valores
+//-------------------------------------------------------------------------------------------------
+
+// Cor da luz emitida em [R, G, B] ao passar o cursor pelo objeto
+const hoverEmissive = [0, 1, 1];
+
+//-------------------------------------------------------------------------------------------------
+//  Trecho intocado
+//-------------------------------------------------------------------------------------------------
+
+// Creating Scene and calling the main loop
 createScene();
 animate();
 
+//=================================================================================================
+//  FUNCOES
+//=================================================================================================
 
-//------------------------------------------------------------------------------------------------
-//-- FUNCTIONS -----------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//  Trecho modificado
+//-------------------------------------------------------------------------------------------------
 
 function onSelectStart( event ) {
 	const controller = event.target;
@@ -77,6 +107,10 @@ function onSelectEnd( event ) {
 	}
 }
 
+//-------------------------------------------------------------------------------------------------
+//  Trecho intocado
+//-------------------------------------------------------------------------------------------------
+
 function getIntersections( controller ) {
 	const tempMatrix = new THREE.Matrix4();	
 	tempMatrix.identity().extractRotation( controller.matrixWorld );
@@ -94,7 +128,9 @@ function intersectObjects( controller ) {
 	if ( intersections.length > 0 ) {
 		const intersection = intersections[ 0 ];
 		const object = intersection.object;
-		object.material.emissive.r = 1;
+		object.material.emissive.r = hoverEmissive[0];
+		object.material.emissive.g = hoverEmissive[1];
+		object.material.emissive.b = hoverEmissive[2];
 		intersected.push( object );
 	} 
 }
@@ -103,6 +139,8 @@ function cleanIntersected() {
 	while ( intersected.length ) {
 		const object = intersected.pop();
 		object.material.emissive.r = 0;
+		object.material.emissive.g = 0;
+		object.material.emissive.b = 0;
 	}
 }
 
@@ -116,7 +154,11 @@ function render() {
 	renderer.render( scene, camera );
 }
 
-//-- Auxiliary Scene Creation function
+//-------------------------------------------------------------------------------------------------
+//  Nova funcao "createScene"
+//-------------------------------------------------------------------------------------------------
+
+// Funcao auxiliar para inicializar o ambiente virtual
 function createScene()
 {
 	const light = new THREE.DirectionalLight( 0xffffff );

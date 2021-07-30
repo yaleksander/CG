@@ -1,0 +1,11 @@
+Model Information:
+* title:	Laokoon
+* source:	https://sketchfab.com/3d-models/laokoon-afb7de3258594e0ca948d8f3f685af66
+* author:	Antikensammlung Kiel (https://sketchfab.com/antikensammlung_kiel)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Laokoon" (https://sketchfab.com/3d-models/laokoon-afb7de3258594e0ca948d8f3f685af66) by Antikensammlung Kiel (https://sketchfab.com/antikensammlung_kiel) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
