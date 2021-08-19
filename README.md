@@ -53,3 +53,9 @@ Material original disponível em: https://github.com/rodrigoluis/CG
 [Ambiente 04: museu virtual com teleporte](https://yaleksander.github.io/CG/T4/t4_ex04.html)
 
 [Ambiente 05: museu virtual com movimento livre](https://yaleksander.github.io/CG/T4/t4_ex05.html)
+
+### T6
+
+[Shader Island: individual](https://yaleksander.github.io/CG/T6/t6_ex01.html)
+
+[Shader Island: integrado](https://yaleksander.github.io/CG/T6/t6_ex02.html)
