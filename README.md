@@ -58,4 +58,4 @@ Material original disponível em: https://github.com/rodrigoluis/CG
 
 [Shader Island: individual](https://yaleksander.github.io/CG/T6/t6_ex01.html)
 
-[Shader Island: integrado](https://yaleksander.github.io/CG/T6/t6_ex02.html)
+[Shader Island: integrado](https://karlaflorentino.github.io/RVA-2021/ProjetoIntegrado/scene.html)
