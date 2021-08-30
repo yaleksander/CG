@@ -1,164 +1,175 @@
-import * as THREE from "../build/three.module.js";
+//=========================================================================================================
+//  SHADER ISLAND II
+//---------------------------------------------------------------------------------------------------------
+//  Aleksander Yacovenco
+//  Mestrado em Computação Gráfica UFJF
+//  Realidade Virtual e Aumentada 2021/2
+//  Prof. Rodrigo Luis
+//---------------------------------------------------------------------------------------------------------
+//  Feito com base no exemplo disponível em:
+//  https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/Shader-Heightmap-Textures.html
+//=========================================================================================================
 
-import { OrbitControls } from "../build/jsm/controls/OrbitControls.js";
-import { ImprovedNoise } from "../build/jsm/math/ImprovedNoise.js";
+// MODULES
+import * as THREE   from "../build/three.module.js";
+import { VRButton } from '../build/jsm/webxr/VRButton.js';
+import Stats        from "../build/jsm/libs/stats.module.js";
 
-let container;
+// SHADERS (AS MODULES)
+import vshader from "./vertexShader.glsl.js"
+import fshader from "./fragmentShader.glsl.js"
 
-let camera, controls, scene, renderer;
+// GLOBAL VARIABLES
+var container, scene, camera, renderer, controls, stats, cameraHolder;
+var clock = new THREE.Clock();
+var moveCamera = false;
 
-let mesh, texture;
+// CUSTOM VALUES
+const height = 200.0;
+const speed  =   0.8;
 
-const worldWidth = 256, worldDepth = 256,
-	worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
-
+// START
 init();
 animate();
 
 function init()
 {
-	container = document.getElementById("container");
-	container.innerHTML = "";
-
-	renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setPixelRatio(window.devicePixelRatio);
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	container.appendChild(renderer.domElement);
-
+	// SCENE
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color(0xbfd1e5);
 
-	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 10, 20000);
+	// CAMERA
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 
-	controls = new OrbitControls(camera, renderer.domElement);
-	controls.minDistance = 1000;
-	controls.maxDistance = 10000;
-	controls.maxPolarAngle = Math.PI / 2;
+	// RENDER
+	renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer.setClearColor(new THREE.Color(0x4696f0));
+	renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.outputEncoding = THREE.sRGBEncoding;
+	renderer.shadowMap.enabled = true;
+	renderer.xr.enabled = true;
+	container = document.getElementById("container");
+	container.appendChild(VRButton.createButton(renderer));
 
-	const data = generateHeight(worldWidth, worldDepth);
+	// CAMERA OBJECT
+	cameraHolder = new THREE.Object3D();
+	cameraHolder.add(camera);
+	scene.add(cameraHolder);
 
-	controls.target.y = data[worldHalfWidth + worldHalfDepth * worldWidth] + 500;
-	camera.position.y = controls.target.y + 2000;
-	camera.position.x = 2000;
-	controls.update();
+	// CONTROLS
+	controls = renderer.xr.getController(0);
+	controls.addEventListener("selectstart", onSelectStart);
+	controls.addEventListener("selectend", onSelectEnd);
+	cameraHolder.add(controls);
 
-	const geometry = new THREE.PlaneGeometry(7500, 7500, worldWidth - 1, worldDepth - 1);
-	geometry.rotateX(- Math.PI / 2);
+	// STATS
+	stats = new Stats();
+	stats.domElement.style.position = "absolute";
+	stats.domElement.style.bottom = "0px";
+	stats.domElement.style.zIndex = 100;
+	container.appendChild(stats.domElement);
 
-	const vertices = geometry.attributes.position.array;
+	// TEXTURES
+	var loader = new THREE.TextureLoader();
+	var bumpTexture = loader.load("images/heightmap.png");
+	bumpTexture.wrapS = bumpTexture.wrapT = THREE.RepeatWrapping;
+	var oceanTexture = loader.load("images/dirt-512.jpg");
+	oceanTexture.wrapS = oceanTexture.wrapT = THREE.RepeatWrapping;
+	var sandyTexture = loader.load("images/sand-512.jpg");
+	sandyTexture.wrapS = sandyTexture.wrapT = THREE.RepeatWrapping;
+	var grassTexture = loader.load("images/grass-512.jpg");
+	grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
+	var rockyTexture = loader.load("images/rock-512.jpg");
+	rockyTexture.wrapS = rockyTexture.wrapT = THREE.RepeatWrapping;
+	var snowyTexture = loader.load("images/snow-512.jpg");
+	snowyTexture.wrapS = snowyTexture.wrapT = THREE.RepeatWrapping;
 
-	for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3)
+	// GLSL UNIFORMS
+	var customUniforms =
 	{
-		vertices[j + 1] = data[i] * 10;
-	}
+		bumpTexture:  { type: "t", value: bumpTexture  },
+		bumpScale:    { type: "f", value: height       },
+		oceanTexture: { type: "t", value: oceanTexture },
+		sandyTexture: { type: "t", value: sandyTexture },
+		grassTexture: { type: "t", value: grassTexture },
+		rockyTexture: { type: "t", value: rockyTexture },
+		snowyTexture: { type: "t", value: snowyTexture },
+	};
 
-//	geometry.computeFaceNormals();
+	// SHADER MATERIAL
+	var customMaterial = new THREE.ShaderMaterial(
+	{
+	    uniforms: customUniforms,
+		vertexShader: vshader,
+		fragmentShader: fshader,
+	});
 
-	texture = new THREE.CanvasTexture(generateTexture(data, worldWidth, worldDepth));
-	texture.wrapS = THREE.ClampToEdgeWrapping;
-	texture.wrapT = THREE.ClampToEdgeWrapping;
+	// SHADER ISLAND
+	var planeGeo = new THREE.PlaneGeometry(512, 512, 512, 512);
+	var plane = new THREE.Mesh(planeGeo, customMaterial);
+	plane.rotation.x = -Math.PI / 2;
+	plane.position.y = -height / 2; // em função da altura da ilha
+	scene.add(plane);
 
-	mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ map: texture }));
-	scene.add(mesh);
+	// BASIC LIGHT
+	scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
+	var light = new THREE.PointLight(0xffffff);
+	light.position.set(height / 2, height * 1.25, height / 2); // em função da altura da ilha
+	scene.add(light);
 
-	window.addEventListener("resize", onWindowResize);
+	// BASIC SKYBOX
+	var skyBoxGeometry = new THREE.BoxGeometry(20000, 20000, 10000);
+	var skyBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x9999ff, side: THREE.BackSide });
+	var skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
+	scene.add(skyBox);
+
+	// BASIC WATER
+	var waterGeo = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+	var waterTex = loader.load("images/water512.jpg");
+	waterTex.wrapS = waterTex.wrapT = THREE.RepeatWrapping;
+	waterTex.repeat.set(5, 5);
+	var waterMat = new THREE.MeshBasicMaterial({ map: waterTex, transparent: true, opacity: 0.40 });
+	var water = new THREE.Mesh(	planeGeo, waterMat);
+	water.rotation.x = -Math.PI / 2;
+	water.position.y = -height / 4; // em função da altura da ilha
+	scene.add(water);
+
+	// STARTING POSITION
+	cameraHolder.position.set(0, height / 2, 256); // em função da altura da ilha
 }
 
-function onWindowResize()
+function move()
 {
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize(window.innerWidth, window.innerHeight);
+	if (moveCamera)
+	{
+		var quaternion = new THREE.Quaternion();
+		quaternion = camera.quaternion;
+		var moveTo = new THREE.Vector3(0, 0, -1);
+		moveTo.applyQuaternion(quaternion);
+		cameraHolder.translateOnAxis(moveTo, speed);
+	}
 }
 
-function generateHeight(width, height)
+function onSelectStart()
 {
-	const size = width * height, data = new Uint8Array(size),
-		perlin = new ImprovedNoise(), z = Math.random() * 100;
-
-	let quality = 1;
-
-	for (let j = 0; j < 4; j++)
-	{
-		for (let i = 0; i < size; i++)
-		{
-			const x = i % width, y = ~ ~ (i / width);
-			data[i] += Math.abs(perlin.noise(x / quality, y / quality, z) * quality * 1.75);
-		}
-		quality *= 5;
-	}
-	return data;
+	moveCamera = true;
 }
 
-function generateTexture(data, width, height)
+function onSelectEnd()
 {
-	// bake lighting into texture
-
-	let context, image, imageData, shade;
-
-	const vector3 = new THREE.Vector3(0, 0, 0);
-
-	const sun = new THREE.Vector3(1, 1, 1);
-	sun.normalize();
-
-	const canvas = document.createElement("canvas");
-	canvas.width = width;
-	canvas.height = height;
-
-	context = canvas.getContext("2d");
-	context.fillStyle = "#000";
-	context.fillRect(0, 0, width, height);
-
-	image = context.getImageData(0, 0, canvas.width, canvas.height);
-	imageData = image.data;
-
-	for (let i = 0, j = 0, l = imageData.length; i < l; i += 4, j++)
-	{
-		vector3.x = data[j - 2] - data[j + 2];
-		vector3.y = 2;
-		vector3.z = data[j - width * 2] - data[j + width * 2];
-		vector3.normalize();
-
-		shade = vector3.dot(sun);
-
-		imageData[i] = (96 + shade * 128) * (0.5 + data[j] * 0.007);
-		imageData[i + 1] = (32 + shade * 96) * (0.5 + data[j] * 0.007);
-		imageData[i + 2] = (shade * 96) * (0.5 + data[j] * 0.007);
-	}
-
-	context.putImageData(image, 0, 0);
-
-	// Scaled 4x
-
-	const canvasScaled = document.createElement("canvas");
-	canvasScaled.width = width * 4;
-	canvasScaled.height = height * 4;
-
-	context = canvasScaled.getContext("2d");
-	context.scale(4, 4);
-	context.drawImage(canvas, 0, 0);
-
-	image = context.getImageData(0, 0, canvasScaled.width, canvasScaled.height);
-	imageData = image.data;
-
-	for (let i = 0, l = imageData.length; i < l; i += 4)
-	{
-		const v = ~ ~ (Math.random() * 5);
-		imageData[i] += v;
-		imageData[i + 1] += v;
-		imageData[i + 2] += v;
-	}
-	context.putImageData(image, 0, 0);
-	return canvasScaled;
+	moveCamera = false;
 }
 
 function animate()
 {
-	requestAnimationFrame(animate);
-	render();
+	renderer.setAnimationLoop(render);
 }
 
 function render()
 {
+	move();
+	stats.update();
 	renderer.render(scene, camera);
 }
