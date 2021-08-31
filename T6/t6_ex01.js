@@ -25,8 +25,9 @@ var clock = new THREE.Clock();
 var moveCamera = false;
 
 // CUSTOM VALUES
-const height = 200.0;
-const speed  =   0.8;
+const base   = 5000.0;
+const height =  650.0;
+const speed  =    6.0;
 
 // START
 init();
@@ -73,17 +74,17 @@ function init()
 
 	// TEXTURES
 	var loader = new THREE.TextureLoader();
-	var bumpTexture = loader.load("images/heightmap.png");
+	var bumpTexture = loader.load("heightmap.png");
+	var oceanTexture = loader.load("images/rock0.jpg");
+	var sandyTexture = loader.load("images/rock1.jpg");
+	var grassTexture = loader.load("images/rock2.jpg");
+	var rockyTexture = loader.load("images/rock3.jpg");
+	var snowyTexture = loader.load("images/moss1.jpg");
 	bumpTexture.wrapS = bumpTexture.wrapT = THREE.RepeatWrapping;
-	var oceanTexture = loader.load("images/dirt-512.jpg");
 	oceanTexture.wrapS = oceanTexture.wrapT = THREE.RepeatWrapping;
-	var sandyTexture = loader.load("images/sand-512.jpg");
 	sandyTexture.wrapS = sandyTexture.wrapT = THREE.RepeatWrapping;
-	var grassTexture = loader.load("images/grass-512.jpg");
 	grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
-	var rockyTexture = loader.load("images/rock-512.jpg");
 	rockyTexture.wrapS = rockyTexture.wrapT = THREE.RepeatWrapping;
-	var snowyTexture = loader.load("images/snow-512.jpg");
 	snowyTexture.wrapS = snowyTexture.wrapT = THREE.RepeatWrapping;
 
 	// GLSL UNIFORMS
@@ -107,7 +108,9 @@ function init()
 	});
 
 	// SHADER ISLAND
-	var planeGeo = new THREE.PlaneGeometry(512, 512, 512, 512);
+	var w = 816;
+	var h = 816;
+	var planeGeo = new THREE.PlaneGeometry(base, base, w, h);
 	var plane = new THREE.Mesh(planeGeo, customMaterial);
 	plane.rotation.x = -Math.PI / 2;
 	plane.position.y = -height / 2; // em função da altura da ilha
@@ -116,7 +119,7 @@ function init()
 	// BASIC LIGHT
 	scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 	var light = new THREE.PointLight(0xffffff);
-	light.position.set(height / 2, height * 1.25, height / 2); // em função da altura da ilha
+	light.position.set(base / 2, height * 1.25, base / 2); // em função do tamanho da ilha
 	scene.add(light);
 
 	// BASIC SKYBOX
@@ -137,7 +140,7 @@ function init()
 	scene.add(water);
 
 	// STARTING POSITION
-	cameraHolder.position.set(0, height / 2, 256); // em função da altura da ilha
+	cameraHolder.position.set(0, height, base / 2); // em função da altura da ilha
 }
 
 function move()
