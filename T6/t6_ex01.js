@@ -1,6 +1,6 @@
 //=========================================================================================================
 //  SHADER ISLAND II
-//---------------------------------------------------------------------------------------------------------
+//=========================================================================================================
 //  Aleksander Yacovenco
 //  Mestrado em Computação Gráfica UFJF
 //  Realidade Virtual e Aumentada 2021/2
@@ -22,6 +22,7 @@ import fshader from "./fragmentShader.glsl.js"
 // GLOBAL VARIABLES
 var container, scene, camera, renderer, controls, stats, cameraHolder;
 var clock = new THREE.Clock();
+var loader = new THREE.TextureLoader();
 var moveCamera = false;
 
 // CUSTOM VALUES
@@ -72,49 +73,9 @@ function init()
 	stats.domElement.style.zIndex = 100;
 	container.appendChild(stats.domElement);
 
-	// TEXTURES
-	var loader = new THREE.TextureLoader();
-	var bumpTexture = loader.load("heightmap.png");
-	var oceanTexture = loader.load("images/rock0.jpg");
-	var sandyTexture = loader.load("images/rock1.jpg");
-	var grassTexture = loader.load("images/rock2.jpg");
-	var rockyTexture = loader.load("images/rock3.jpg");
-	var snowyTexture = loader.load("images/moss1.jpg");
-	bumpTexture.wrapS = bumpTexture.wrapT = THREE.RepeatWrapping;
-	oceanTexture.wrapS = oceanTexture.wrapT = THREE.RepeatWrapping;
-	sandyTexture.wrapS = sandyTexture.wrapT = THREE.RepeatWrapping;
-	grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
-	rockyTexture.wrapS = rockyTexture.wrapT = THREE.RepeatWrapping;
-	snowyTexture.wrapS = snowyTexture.wrapT = THREE.RepeatWrapping;
-
-	// GLSL UNIFORMS
-	var customUniforms =
-	{
-		bumpTexture:  { type: "t", value: bumpTexture  },
-		bumpScale:    { type: "f", value: height       },
-		oceanTexture: { type: "t", value: oceanTexture },
-		sandyTexture: { type: "t", value: sandyTexture },
-		grassTexture: { type: "t", value: grassTexture },
-		rockyTexture: { type: "t", value: rockyTexture },
-		snowyTexture: { type: "t", value: snowyTexture },
-	};
-
-	// SHADER MATERIAL
-	var customMaterial = new THREE.ShaderMaterial(
-	{
-	    uniforms: customUniforms,
-		vertexShader: vshader,
-		fragmentShader: fshader,
-	});
-
-	// SHADER ISLAND
-	var w = 816;
-	var h = 816;
-	var planeGeo = new THREE.PlaneGeometry(base, base, w, h);
-	var plane = new THREE.Mesh(planeGeo, customMaterial);
-	plane.rotation.x = -Math.PI / 2;
-	plane.position.y = -height / 2; // em função da altura da ilha
-	scene.add(plane);
+	// ADD ISLAND
+	var ground = island(base, height, 816, 816, 50);
+	scene.add(ground);
 
 	// BASIC LIGHT
 	scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
@@ -134,13 +95,54 @@ function init()
 	waterTex.wrapS = waterTex.wrapT = THREE.RepeatWrapping;
 	waterTex.repeat.set(5, 5);
 	var waterMat = new THREE.MeshBasicMaterial({ map: waterTex, transparent: true, opacity: 0.40 });
-	var water = new THREE.Mesh(	planeGeo, waterMat);
+	var water = new THREE.Mesh(ground.geometry, waterMat);
 	water.rotation.x = -Math.PI / 2;
 	water.position.y = -height / 4; // em função da altura da ilha
 	scene.add(water);
 
 	// STARTING POSITION
 	cameraHolder.position.set(0, height, base / 2); // em função da altura da ilha
+}
+
+function island(b, h, u, v, s)
+{
+	// TEXTURES
+	var tex = [];
+	var bumpTexture = loader.load("images/heightmap.png");
+	bumpTexture.wrapS = bumpTexture.wrapT = THREE.RepeatWrapping;
+	for (var i = 0; i < 5; i++)
+	{
+		tex.push(loader.load("images/tex" + i.toString() + ".jpg"));
+		tex[i].wrapS = tex[i].wrapT = THREE.RepeatWrapping;
+	}
+
+	// GLSL UNIFORMS
+	var customUniforms =
+	{
+		bumpTexture: { type: "t", value: bumpTexture },
+		bumpScale:   { type: "f", value: h           },
+		mapScale:    { type: "f", value: s           },
+		tex1:        { type: "t", value: tex[0]      },
+		tex2:        { type: "t", value: tex[1]      },
+		tex3:        { type: "t", value: tex[2]      },
+		tex4:        { type: "t", value: tex[3]      },
+		tex5:        { type: "t", value: tex[4]      }
+	};
+
+	// SHADER MATERIAL
+	var customMaterial = new THREE.ShaderMaterial(
+	{
+	    uniforms: customUniforms,
+		vertexShader: vshader,
+		fragmentShader: fshader,
+	});
+
+	// SHADER ISLAND
+	var planeGeo = new THREE.PlaneGeometry(b, b, u, v);
+	var plane = new THREE.Mesh(planeGeo, customMaterial);
+	plane.rotation.x = -Math.PI / 2;
+	plane.position.y = -h / 2; // em função da altura da ilha
+	return plane;
 }
 
 function move()
