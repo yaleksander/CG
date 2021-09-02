@@ -16,8 +16,8 @@ import { VRButton } from '../build/jsm/webxr/VRButton.js';
 import Stats        from "../build/jsm/libs/stats.module.js";
 
 // SHADERS (AS MODULES)
-import vshader from "./vertexShader.glsl.js"
-import fshader from "./fragmentShader.glsl.js"
+import vshader from "./vertexShader.glsl.js";
+import fshader from "./fragmentShader.glsl.js";
 
 // GLOBAL VARIABLES
 var container, scene, camera, renderer, controls, stats, cameraHolder;
@@ -46,7 +46,7 @@ function init()
 
 	// RENDER
 	renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setClearColor(new THREE.Color(0x4696f0));
+//	renderer.setClearColor(new THREE.Color(0x1177aa));
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	renderer.outputEncoding = THREE.sRGBEncoding;
@@ -54,6 +54,9 @@ function init()
 	renderer.xr.enabled = true;
 	container = document.getElementById("container");
 	container.appendChild(VRButton.createButton(renderer));
+
+    renderer.shadowMapSoft = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 	// CAMERA OBJECT
 	cameraHolder = new THREE.Object3D();
@@ -73,15 +76,16 @@ function init()
 	stats.domElement.style.zIndex = 100;
 	container.appendChild(stats.domElement);
 
-	// ADD ISLAND
-	var ground = island(base, height, 816, 816, 50);
-	scene.add(ground);
-
 	// BASIC LIGHT
-	scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
+//	scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 	var light = new THREE.PointLight(0xffffff);
-	light.position.set(base / 2, height * 1.25, base / 2); // em função do tamanho da ilha
-	scene.add(light);
+	light.position.set(base / 2, height * 1.25, 0); // em função do tamanho da ilha
+	light.castShadow = true;
+//	scene.add(light);
+
+	// ADD ISLAND
+	var ground = island(base, height, 600, 600, 50);
+	scene.add(ground);
 
 	// BASIC SKYBOX
 	var skyBoxGeometry = new THREE.BoxGeometry(20000, 20000, 10000);
@@ -104,12 +108,12 @@ function init()
 	cameraHolder.position.set(0, height, base / 2); // em função da altura da ilha
 }
 
-function island(b, h, u, v, s)
+function island(b, h, u, v, s, m)
 {
 	// TEXTURES
 	var tex = [];
 	var bumpTexture = loader.load("images/heightmap.png");
-	bumpTexture.wrapS = bumpTexture.wrapT = THREE.RepeatWrapping;
+	var normalTexture = loader.load("images/normalmap.png");
 	for (var i = 0; i < 5; i++)
 	{
 		tex.push(loader.load("images/tex" + i.toString() + ".jpg"));
@@ -117,16 +121,19 @@ function island(b, h, u, v, s)
 	}
 
 	// GLSL UNIFORMS
+	var lightDir = new THREE.Vector3(5, -2, 1);
 	var customUniforms =
 	{
-		bumpTexture: { type: "t", value: bumpTexture },
-		bumpScale:   { type: "f", value: h           },
-		mapScale:    { type: "f", value: s           },
-		tex1:        { type: "t", value: tex[0]      },
-		tex2:        { type: "t", value: tex[1]      },
-		tex3:        { type: "t", value: tex[2]      },
-		tex4:        { type: "t", value: tex[3]      },
-		tex5:        { type: "t", value: tex[4]      }
+		bumpTexture:    { type: "t", value: bumpTexture          },
+		normalTexture:  { type: "t", value: normalTexture        },
+		bumpScale:      { type: "f", value: h                    },
+		mapScale:       { type: "f", value: s                    },
+		tex1:           { type: "t", value: tex[0]               },
+		tex2:           { type: "t", value: tex[1]               },
+		tex3:           { type: "t", value: tex[2]               },
+		tex4:           { type: "t", value: tex[3]               },
+		tex5:           { type: "t", value: tex[4]               },
+		lightDirection: {            value: lightDir.normalize() }
 	};
 
 	// SHADER MATERIAL
@@ -134,7 +141,7 @@ function island(b, h, u, v, s)
 	{
 	    uniforms: customUniforms,
 		vertexShader: vshader,
-		fragmentShader: fshader,
+		fragmentShader: fshader
 	});
 
 	// SHADER ISLAND
@@ -142,6 +149,9 @@ function island(b, h, u, v, s)
 	var plane = new THREE.Mesh(planeGeo, customMaterial);
 	plane.rotation.x = -Math.PI / 2;
 	plane.position.y = -h / 2; // em função da altura da ilha
+	plane.geometry.computeVertexNormals();
+//	plane.castShadow = true;
+//	plane.receiveShadow = true;
 	return plane;
 }
 
