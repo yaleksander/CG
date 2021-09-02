@@ -29,6 +29,7 @@ var moveCamera = false;
 const base   = 5000.0;
 const height =  650.0;
 const speed  =    6.0;
+const dist   =   10.0;
 
 // START
 init();
@@ -41,12 +42,11 @@ function init()
 
 	// CAMERA
 	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 90000;
 	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 
 	// RENDER
 	renderer = new THREE.WebGLRenderer({ antialias: true });
-//	renderer.setClearColor(new THREE.Color(0x1177aa));
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	renderer.outputEncoding = THREE.sRGBEncoding;
@@ -76,39 +76,46 @@ function init()
 	stats.domElement.style.zIndex = 100;
 	container.appendChild(stats.domElement);
 
-	// BASIC LIGHT
-//	scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
-	var light = new THREE.PointLight(0xffffff);
-	light.position.set(base / 2, height * 1.25, 0); // em função do tamanho da ilha
-	light.castShadow = true;
-//	scene.add(light);
-
 	// ADD ISLAND
 	var ground = island(base, height, 600, 600, 50);
 	scene.add(ground);
 
 	// BASIC SKYBOX
-	var skyBoxGeometry = new THREE.BoxGeometry(20000, 20000, 10000);
-	var skyBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x9999ff, side: THREE.BackSide });
-	var skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
+	var skyBoxGeometry = new THREE.BoxGeometry(base * dist, base * dist, base * dist);
+	const skyMat = [
+		new THREE.MeshBasicMaterial({ map: loader.load("images/skybox_right.png" ), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("images/skybox_left.png"  ), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("images/skybox_top.png"   ), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("images/skybox_bottom.png"), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("images/skybox_front.png" ), side: THREE.BackSide }),
+		new THREE.MeshBasicMaterial({ map: loader.load("images/skybox_back.png"  ), side: THREE.BackSide }),
+	];
+	var skyBox = new THREE.Mesh(skyBoxGeometry, skyMat);
+	skyBox.position.set(0, (base * dist / 2) * -0.025, 0);
 	scene.add(skyBox);
 
 	// BASIC WATER
-	var waterGeo = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+	var waterGeo = new THREE.PlaneGeometry(base * dist, base * dist, 1, 1);
 	var waterTex = loader.load("images/water512.jpg");
 	waterTex.wrapS = waterTex.wrapT = THREE.RepeatWrapping;
 	waterTex.repeat.set(5, 5);
 	var waterMat = new THREE.MeshBasicMaterial({ map: waterTex, transparent: true, opacity: 0.40 });
-	var water = new THREE.Mesh(ground.geometry, waterMat);
+	var water = new THREE.Mesh(waterGeo, waterMat);
 	water.rotation.x = -Math.PI / 2;
 	water.position.y = -height / 4; // em função da altura da ilha
 	scene.add(water);
 
+	// FLOOR PLANE
+	var oceanBottom = new THREE.Mesh(new THREE.PlaneGeometry(base * dist, base * dist), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+	oceanBottom.position.set(0, -height / 2 + 50, 0);
+	oceanBottom.rotation.set(-Math.PI / 2, 0, 0);
+	scene.add(oceanBottom);
+
 	// STARTING POSITION
-	cameraHolder.position.set(0, height, base / 2); // em função da altura da ilha
+	cameraHolder.position.set(0, height, base / 2); // em função do tamanho da ilha
 }
 
-function island(b, h, u, v, s, m)
+function island(b, h, u, v, s)
 {
 	// TEXTURES
 	var tex = [];
@@ -150,8 +157,6 @@ function island(b, h, u, v, s, m)
 	plane.rotation.x = -Math.PI / 2;
 	plane.position.y = -h / 2; // em função da altura da ilha
 	plane.geometry.computeVertexNormals();
-//	plane.castShadow = true;
-//	plane.receiveShadow = true;
 	return plane;
 }
 
