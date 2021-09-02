@@ -2,7 +2,7 @@ const shader =
 `
 // constant values
 uniform sampler2D bumpTexture;
-uniform sampler2D normalTexture;
+uniform sampler2D normalTexture; // https://cpetry.github.io/NormalMap-Online/
 uniform float bumpScale;
 
 // to be interpolated in fragment shader
@@ -21,7 +21,7 @@ void main()
 	vNormal = vec3(normalData.r, normalData.g, normalData.b);
 
 	// move the position along the normal
-    vec3 newPosition = position + normal * bumpScale * vAmount;
+	vec3 newPosition = position + normal * bumpScale * vAmount;
 
 	// update real position
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
