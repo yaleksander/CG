@@ -42,7 +42,7 @@ function init()
 
 	// CAMERA
 	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 90000;
+	var VIEW_ANGLE = 90, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 90000;
 	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 
 	// RENDER
@@ -53,6 +53,7 @@ function init()
 	renderer.shadowMap.enabled = true;
 	renderer.xr.enabled = true;
 	container = document.getElementById("container");
+	container.appendChild(renderer.domElement);
 	container.appendChild(VRButton.createButton(renderer));
 
     renderer.shadowMapSoft = true;
