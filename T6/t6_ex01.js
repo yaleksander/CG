@@ -12,15 +12,17 @@
 
 // MODULES
 import * as THREE   from "../build/three.module.js";
-import { VRButton } from '../build/jsm/webxr/VRButton.js';
+import { VRButton } from "../build/jsm/webxr/VRButton.js";
+import { GUI }      from "../build/jsm/libs/dat.gui.module.js";
 import Stats        from "../build/jsm/libs/stats.module.js";
 
 // SHADERS (AS MODULES)
-import vshader from "./vertexShader.glsl.js";
-import fshader from "./fragmentShader.glsl.js";
+import vshader from "./shaders/vertex.glsl.js";
+import fshader from "./shaders/fragment.glsl.js";
 
 // GLOBAL VARIABLES
-var container, scene, camera, renderer, controls, stats, cameraHolder;
+var container, scene, camera, renderer, controls, stats, cameraHolder, ground;
+var gui = new GUI();
 var clock = new THREE.Clock();
 var loader = new THREE.TextureLoader();
 var moveCamera = false;
@@ -30,6 +32,18 @@ const base   = 5000.0;
 const height =  650.0;
 const speed  =    6.0;
 const dist   =   10.0;
+
+// CONTROLLER
+const terrainController =
+{
+	size:       5000.0,
+	height:      650.0,
+	segments:    500.0,
+	brightness:    1.0,
+	sunDirX:       1.0,
+	sunDirY:       5.0,
+	sunDirZ:      -1.0
+};
 
 // START
 init();
@@ -78,8 +92,21 @@ function init()
 	container.appendChild(stats.domElement);
 
 	// ADD ISLAND
-	var ground = island(base, height, 600, 600, 50);
+	const x = terrainController.sunDirX;
+	const y = terrainController.sunDirY;
+	const z = terrainController.sunDirZ;
+	const v = new THREE.Vector3(x, y, z).normalize();
+	ground = island(base, height, 600, 600, v, 1, 50);
 	scene.add(ground);
+
+	// INTERFACE
+	gui.add(terrainController, "height",        0.0, 1000.0,  10.00).onChange(terrainChanged);
+	gui.add(terrainController, "size",       1000.0, 9000.0, 100.00).onChange(rebuildTerrain);
+	gui.add(terrainController, "segments",      1.0,  816.0,   1.00).onChange(rebuildTerrain);
+	gui.add(terrainController, "brightness",    0.0,    5.0,   0.01).onChange(terrainChanged);
+	gui.add(terrainController, "sunDirX", -10.0, 10.0, 0.1).onChange(terrainChanged).name("sun direction x");
+	gui.add(terrainController, "sunDirY", -10.0, 10.0, 0.1).onChange(terrainChanged).name("sun direction y");
+	gui.add(terrainController, "sunDirZ", -10.0, 10.0, 0.1).onChange(terrainChanged).name("sun direction z");
 
 	// BASIC SKYBOX
 	var skyBoxGeometry = new THREE.BoxGeometry(base * dist, base * dist, base * dist);
@@ -116,7 +143,28 @@ function init()
 	cameraHolder.position.set(0, height, base / 2); // em função do tamanho da ilha
 }
 
-function island(b, h, u, v, s)
+// SHADER UNIFORM VALUES CHANGED
+function terrainChanged()
+{
+	ground.material.uniforms["bumpScale"].value  = terrainController.height;
+	ground.material.uniforms["brightness"].value = terrainController.brightness;
+	const x = terrainController.sunDirX;
+	const y = terrainController.sunDirY;
+	const z = terrainController.sunDirZ;
+	ground.material.uniforms["lightDirection"].value = new THREE.Vector3(x, y, z).normalize();
+}
+
+// GEOMETRY CHANGED
+function rebuildTerrain()
+{
+	ground.geometry.dispose();
+	const a = terrainController.size;
+	const b = terrainController.segments;
+	ground.geometry = new THREE.PlaneGeometry(a, a, b, b);
+}
+
+// size, height, hor segments, ver segments, vec3, brightness, tex mult
+function island(b, h, u, v, t, d, s)
 {
 	// TEXTURES
 	var tex = [];
@@ -129,19 +177,19 @@ function island(b, h, u, v, s)
 	}
 
 	// GLSL UNIFORMS
-	var lightDir = new THREE.Vector3(5, -2, 1);
 	var customUniforms =
 	{
-		bumpTexture:    { type: "t", value: bumpTexture          },
-		normalTexture:  { type: "t", value: normalTexture        },
-		bumpScale:      { type: "f", value: h                    },
-		mapScale:       { type: "f", value: s                    },
-		tex1:           { type: "t", value: tex[0]               },
-		tex2:           { type: "t", value: tex[1]               },
-		tex3:           { type: "t", value: tex[2]               },
-		tex4:           { type: "t", value: tex[3]               },
-		tex5:           { type: "t", value: tex[4]               },
-		lightDirection: {            value: lightDir.normalize() }
+		bumpTexture:    { type: "t", value: bumpTexture   },
+		normalTexture:  { type: "t", value: normalTexture },
+		bumpScale:      { type: "f", value: h             },
+		mapScale:       { type: "f", value: s             },
+		brightness:     { type: "f", value: d             },
+		tex1:           { type: "t", value: tex[0]        },
+		tex2:           { type: "t", value: tex[1]        },
+		tex3:           { type: "t", value: tex[2]        },
+		tex4:           { type: "t", value: tex[3]        },
+		tex5:           { type: "t", value: tex[4]        },
+		lightDirection: {            value: t.normalize() }
 	};
 
 	// SHADER MATERIAL
@@ -157,10 +205,10 @@ function island(b, h, u, v, s)
 	var plane = new THREE.Mesh(planeGeo, customMaterial);
 	plane.rotation.x = -Math.PI / 2;
 	plane.position.y = -h / 2; // em função da altura da ilha
-	plane.geometry.computeVertexNormals();
 	return plane;
 }
 
+// BASIC FREE NAVIGATION
 function move()
 {
 	if (moveCamera)
@@ -183,6 +231,7 @@ function onSelectEnd()
 	moveCamera = false;
 }
 
+// DEFAULT ANIMATION AND RENDERING PROCESS
 function animate()
 {
 	renderer.setAnimationLoop(render);
