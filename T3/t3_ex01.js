@@ -43,11 +43,17 @@ arToolkitContext.init(function onCompleted()
 
 // -----------------------------------------------------------------------------
 
-var loader = new GLTFLoader();
+var loader     = new GLTFLoader();
 var hiroScene  = new THREE.Group();
-var kanjiScene = new THREE.PointLight(0xf2ca00, 10, 100);
+var kanjiScene = new THREE.Group();
+var sphereGeo  = new THREE.SphereGeometry(0.2, 32, 16);
+var sphereMat  = new THREE.MeshBasicMaterial({color: 0xf59342});
+var sphere     = new THREE.Mesh(sphereGeo, sphereMat);
 
-loader.load("assets/turret/scene.gltf", function (gltf)
+kanjiScene.add(sphere);
+kanjiScene.add(new THREE.PointLight(0xffffff, 5));
+
+loader.load("assets/barrel/scene.gltf", function (gltf)
 {
 	gltf.scene.position.set(0, 2.7, 0);
 	gltf.scene.scale.set(0.25, 0.25, 0.25);
@@ -56,7 +62,7 @@ loader.load("assets/turret/scene.gltf", function (gltf)
 
 scene.add(hiroScene);
 scene.add(kanjiScene);
-scene.add(new THREE.AmbientLight(0x404040));
+scene.add(new THREE.AmbientLight(0xaaaaaa));
 
 // -----------------------------------------------------------------------------
 
