@@ -55,8 +55,8 @@ kanjiScene.add(new THREE.PointLight(0xffffff, 5));
 
 loader.load("assets/barrel/scene.gltf", function (gltf)
 {
-	gltf.scene.position.set(0, 2.7, 0);
-	gltf.scene.scale.set(0.25, 0.25, 0.25);
+//	gltf.scene.position.set(0, 2.7, 0);
+//	gltf.scene.scale.set(0.25, 0.25, 0.25);
 	hiroScene.add(gltf.scene);
 });
 
