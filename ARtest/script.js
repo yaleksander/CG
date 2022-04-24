@@ -52,7 +52,7 @@ var planeGeo = new THREE.PlaneGeometry(1, 1);
 var planeMat = new THREE.MeshStandardMaterial({map: texture, side: THREE.DoubleSide});
 var plane = new THREE.Mesh(planeGeo, planeMat);
 plane.rotation.set(-Math.PI / 2, 0, 0);
-plane.position.set(0, 0.5, 0);
+plane.position.set(0, 0.05, 0);
 kanjiScene.add(plane);
 scene.add(kanjiScene);
 scene.add(new THREE.AmbientLight(0xeeeeee, 0.75));
