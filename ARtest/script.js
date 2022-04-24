@@ -44,16 +44,18 @@ arToolkitContext.init(function onCompleted()
 
 // -----------------------------------------------------------------------------
 
-var loader     = new GLTFLoader();
-var kanjiScene  = new THREE.Group();
+var loader     = new THREE.TextureLoader();
+var kanjiScene = new THREE.Group();
 var texture = loader.load("assets/42.png");
 
 var planeGeo = new THREE.PlaneGeometry(1, 1);
-var planeMat = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+var planeMat = new THREE.MeshStandardMaterial({map: texture, side: THREE.DoubleSide});
 var plane = new THREE.Mesh(planeGeo, planeMat);
 plane.rotation.set(-Math.PI / 2, 0, 0);
+plane.position.set(0, 0.5, 0);
 kanjiScene.add(plane);
 scene.add(kanjiScene);
+scene.add(new THREE.AmbientLight(0xeeeeee, 0.75));
 
 // -----------------------------------------------------------------------------
 /*
