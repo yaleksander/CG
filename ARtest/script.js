@@ -14,8 +14,8 @@ document.body.appendChild(renderer.domElement);
 var camera = new THREE.PerspectiveCamera();
 scene.add(camera);
 
-var arToolkitSource = new ARjs.Source({ sourceType: 'image', sourceUrl: 'assets/kanjiScene.jpg' });
-//var arToolkitSource = new ARjs.Source({sourceType: 'webcam', sourceWidth: 1280, sourceHeight: 720});
+//var arToolkitSource = new ARjs.Source({ sourceType: 'image', sourceUrl: 'assets/kanjiScene.jpg' });
+var arToolkitSource = new ARjs.Source({sourceType: 'webcam', sourceWidth: 1280, sourceHeight: 720});
 
 arToolkitSource.init(function onReady(){ setTimeout(() => { onResize() }, 2000); });
 
