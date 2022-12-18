@@ -11,11 +11,18 @@
 <body>
 	<a-scene embedded arjs arjs-vr id="scene">
 
+		<a-camera><a-plane id="plane" position="0 0 -48" width="192" height="108"></a-plane></a-camera>
 		<a-entity light="type: ambient; color: #ffffff; intensity: 0.6;"></a-entity>
 		<a-entity light="type: point;   color: #ffffff; intensity: 0.8;"></a-entity>
 
 	</a-scene>
 	<script>
+
+setTimeout(func, 5000);
+function func()
+{
+	document.getElementById("plane").setAttribute("src", "#arjs-video");
+}
 
 function rand(min, max)
 {
