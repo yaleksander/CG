@@ -23,6 +23,10 @@
 	</a-scene>
 	<script>
 
+document.addEventListener("click", function(e)
+{
+	document.getElementById("arjs-video").setAttribute("active", "false");
+});
 navigator.mediaDevices.getUserMedia({audio: false, video: {width: 1920, height: 1080}})
 .then(stream => {
 	var $video = document.querySelector("video");
