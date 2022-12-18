@@ -60,7 +60,6 @@ function farLantern($dist, $angle, $delta, $opacity = 0.8)
 		for ($i =   0; $i <  50; $i +=  5)
 		{
 			$k = 360 / ($i + 5);
-			echo $k . "<br>";
 			for ($j = $k / 2; $j < 360; $j += $k)
 				farLantern($i, $j, $k);
 		}
