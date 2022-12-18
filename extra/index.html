@@ -11,18 +11,19 @@
 </head>
 <body>
 	<a-scene embedded arjs arjs-vr id="scene">
-
+<!--
 		<a-assets>
 			<video id="webcam" playsinline crossorigin="anonymous"></video>
 		</a-assets>
-
+-->
 		<a-entity light="type: ambient; color: #ffffff; intensity: 0.6;"></a-entity>
 		<a-entity light="type: point;   color: #ffffff; intensity: 0.8;"></a-entity>
-		<a-camera><a-plane position="0 0 -80" width="192" height="108" src="#webcam"></a-plane></a-camera>
+
+<!--		<a-camera><a-sky src="#webcam" segments-width=192 segments-height=108></a-sky></a-camera>-->
 
 	</a-scene>
 	<script>
-
+/*
 navigator.mediaDevices.getUserMedia({audio: false, video: true})
 .then(stream => {
 	var $video = document.querySelector('video')
@@ -31,7 +32,7 @@ navigator.mediaDevices.getUserMedia({audio: false, video: true})
 		$video.play()
 	}
 })
-
+*/
 function rand(min, max)
 {
 	return Math.round(min + Math.random() * (max - min));
